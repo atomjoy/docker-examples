@@ -1,0 +1,64 @@
+FROM php:fpm-alpine
+
+COPY --chown=www-data:www-data ./data/ /var/www/html/
+
+# Install dependencies
+RUN apk --no-cache --update add \
+    git \
+    libxml2-dev \
+    sqlite-dev \
+    curl-dev \
+    libzip-dev \
+    libpng-dev \
+    libjpeg-turbo-dev \
+	libwebp-dev \
+    freetype-dev && \
+    rm -rf /tmp/* && \
+    rm -rf /var/cache/apk/*
+
+# Installing PHP
+RUN apk add --no-cache php \
+    php-common \
+    php-fpm \
+    php-pdo \
+    php-opcache \
+    php-gd \
+    php-zip \
+    php-phar \
+    php-iconv \
+    php-cli \
+    php-curl \
+    php-openssl \
+    php-mbstring \
+    php-tokenizer \
+    php-fileinfo \
+    php-json \
+    php-xml \
+    php-xmlwriter \
+    php-simplexml \
+    php-dom \
+    php-pdo_mysql \
+    php-pdo_sqlite \
+    php-tokenizer \
+    php-pecl-redis
+
+RUN docker-php-ext-install bcmath pdo_mysql pcntl zip opcache
+RUN docker-php-ext-configure gd --with-jpeg --with-freetype --with-webp
+RUN docker-php-ext-install gd
+
+# Composer
+COPY --from=composer:latest /usr/bin/composer /usr/bin/composer
+
+WORKDIR /var/www/html
+
+# Change current user to www
+USER www-data
+
+RUN php artisan cache:clear
+RUN php artisan config:clear
+RUN php artisan migrate
+RUN php artisan storage:link
+
+# Expose port 9000 and start php-fpm server
+EXPOSE 9000
+CMD ["php-fpm"]

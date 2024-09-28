@@ -1,0 +1,67 @@
+# docker compose up --build -d
+# docker compose up -d
+# docker compose down -v
+# docker compose ps
+# docker exec -it test1_host bash
+# docker volume create logs
+# docker network create -d bridge my-net
+
+services:
+
+    frontend1:
+      container_name: test1_host
+      build:
+        context: .
+        target: frontend1
+        dockerfile: ./Dockerfile
+      volumes:
+        - myapp1:/home/test/app
+        - myapp3:/home/test/share
+        - ./webapp:/home/test/www/html
+      networks:
+        - thenetwork
+
+    frontend2:
+      container_name: test2_host
+      build:
+        context: .
+        target: frontend2
+        dockerfile: ./Dockerfile
+      volumes:        
+        - myapp2:/home/test/app
+        - myapp3:/home/test/share
+      networks:
+        - thenetwork
+      depends_on:
+        - frontend1
+
+# Each service containers uses its own local volume (storage)
+volumes:
+  
+  # Volumes app1 subdirectory
+  myapp1:
+    driver: local
+    driver_opts:
+      device: ./volumes/app1
+      type: none # nfs
+      o: bind # o:addr: 10.0.0.10
+  
+  # Volumes app2 subdirectory
+  myapp2:
+    driver: local
+    driver_opts:
+      device: ./volumes/app2
+      type: none
+      o: bind
+  
+  # Share between containers and copy to local dir
+  myapp3:
+  
+  # When volume has been created with: docker volume create cmd
+  # myapp4:
+  #   external: true
+
+# Docker netwtorks
+networks:
+  thenetwork:
+    driver: bridge

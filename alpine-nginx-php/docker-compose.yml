@@ -1,0 +1,27 @@
+# docker compose up -d --build
+# compose down
+# compose up
+
+version: "3"
+services:
+  nginx:
+    build:
+      context: .
+      dockerfile: ./nginx/Dockerfile
+    ports: 
+      - "8000:80"
+    volumes:
+      - ./data/:/var/www/html/
+      - ./logs/nginx:/var/log/nginx/
+    networks:
+      - internal
+  php:
+    image: php:fpm-alpine
+    volumes:
+      - ./data/:/var/www/html/
+      - ./logs/php.log:/var/log/fpm-php.www.log
+    networks:
+      - internal
+networks:
+  internal:
+    driver: bridge

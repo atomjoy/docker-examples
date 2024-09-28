@@ -1,0 +1,23 @@
+# docker compose -f docker-compose-prod.yml up -d --build
+# compose down
+# compose up
+
+version: "3"
+services:
+  nginx:
+    build:
+      context: .
+      dockerfile: nginx/production/Dockerfile
+    ports: 
+      - "8000:80"
+    networks:
+      - internal
+  php:
+    build:
+      context: .
+      dockerfile: php/production/Dockerfile
+    networks:
+      - internal
+networks:
+  internal:
+    driver: bridge
