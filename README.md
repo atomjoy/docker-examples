@@ -88,6 +88,16 @@ host.docker.internal
 ```sh
 # /etc/php/8.2/fpm/pool.d/www.conf
 # /run/php/php8.2-fpm.sock
+
+COPY ./nginx/sock/default.conf /etc/nginx/conf.d/default.conf
+
+COPY ./php/sock/www.conf /etc/php/8.2/fpm/pool.d/www.conf
+
+RUN usermod -aG www-data nginx
+
+RUN touch /run/php/php8.2-fpm.sock
+RUN chown -R www-data:www-data /run/php
+RUN chmod 660 /run/php/php8.2-fpm.sock
 ```
 
 ## Php cli
@@ -97,4 +107,32 @@ FROM php:8.3-cli
 COPY . /usr/src/myapp
 WORKDIR /usr/src/myapp
 CMD [ "php", "./your-script.php" ]
+```
+
+## Site php-fpm nginx
+
+```sh
+services:
+    php:
+        image: php:8.2-fpm
+    web:
+        image: nginx:latest
+
+
+server {
+    index index.php index.html;
+    server_name localhost;
+    error_log  /var/log/nginx/error.log;
+    access_log /var/log/nginx/access.log;
+
+    location ~ \.php$ {
+        try_files $uri =404;
+        fastcgi_split_path_info ^(.+\.php)(/.+)$;
+        fastcgi_pass php:9000;
+        fastcgi_index index.php;
+        include fastcgi_params;
+        fastcgi_param SCRIPT_FILENAME $document_root$fastcgi_script_name;
+        fastcgi_param PATH_INFO $fastcgi_path_info;
+    }
+}
 ```
