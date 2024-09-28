@@ -1,0 +1,24 @@
+services:
+  web:
+    container_name: web_host
+    restart: always
+    build: 
+      context: .
+      target: web_server
+      dockerfile: ./Dockerfile
+    ports:
+      - 8000:80
+      - 9000:9000
+    # networks:
+    #     - internal
+    volumes:
+      # - sock:/sock
+      - ./logs/nginx:/var/log/nginx/
+      - ./logs/php:/var/log/fpm-php.www.log
+
+volumes:
+  sock:
+
+networks:
+  internal:
+    driver: bridge
