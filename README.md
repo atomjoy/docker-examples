@@ -1,6 +1,6 @@
-# Docker
+# Nginx and Php-fpm with Laravel on Docker
 
-Docker examples
+Running php-fpm and nginx processes in the same container with Laravel.
 
 ## Docker compose build
 
