@@ -1,4 +1,4 @@
-# Nginx and Php-fpm with Laravel on Docker
+# Nginx and Php-fpm with Laravel on Docker (multiple services in one container)
 
 Running nginx and php-fpm processes in the same Debian container with Laravel (mysql, mariadb, sqlite). How to run multiple services in one docker container.
 
